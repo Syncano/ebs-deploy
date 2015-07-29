@@ -1,6 +1,7 @@
 
 from ebs_deploy.commands import usage
 
+
 def add_arguments(parser):
     """
     adds arguments for the help command
@@ -13,4 +14,3 @@ def execute(helper, config, args):
     empty command to allow help messages to work
     """
     pass
-

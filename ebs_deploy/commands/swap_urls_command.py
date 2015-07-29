@@ -1,5 +1,7 @@
 import time
-from ebs_deploy import out, get, parse_env_config, parse_option_settings, upload_application_archive
+
+from ebs_deploy import (get, out, parse_env_config, parse_option_settings,
+                        upload_application_archive)
 
 
 def add_arguments(parser):
@@ -24,4 +26,3 @@ def execute(helper, config, args):
                                                                                               old_env_name))
     helper.swap_environment_cnames(old_env_name, new_env_name)
     helper.wait_for_environments([old_env_name, new_env_name], status='Ready', include_deleted=False)
-
