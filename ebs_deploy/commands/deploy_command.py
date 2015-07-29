@@ -4,6 +4,8 @@ from datetime import datetime
 from ebs_deploy import (get, parse_env_config, parse_option_settings,
                         upload_application_archive)
 
+TIMEOUT_PER_INSTANCE = 120
+
 
 def add_arguments(parser):
     """
@@ -30,13 +32,19 @@ def add_arguments(parser):
                         action='store_true')
 
 
+def get_env_instances(ec2_conn, env_name):
+    return [r.instances[0] for r in ec2_conn.instances.get_all_reservations()
+            if r.instances[0].tags['Name'] == env_name]
+
+
 def execute(helper, config, args):
     """
     Deploys to an environment
     """
     version_label = args.version_label
-    env_config = parse_env_config(config, args.environment)
     env_name = args.environment
+
+    env_config = parse_env_config(config, env_name)
 
     # upload or build an archive
     version_label = upload_application_archive(
@@ -47,11 +55,16 @@ def execute(helper, config, args):
     # deploy it
     helper.deploy_version(env_name, version_label)
 
+    timeout = TIMEOUT_PER_INSTANCE
+    timeout *= len(get_env_instances(helper.ec2, env_name))
+
     # wait
     if not args.dont_wait:
-        helper.wait_for_environments(env_name, status='Ready',
+        helper.wait_for_environments(env_name,
+                                     status='Ready',
                                      version_label=version_label,
-                                     include_deleted=False)
+                                     include_deleted=False,
+                                     wait_time_secs=timeout)
 
     # update it
     env = parse_env_config(config, env_name)
@@ -69,7 +82,8 @@ def execute(helper, config, args):
                                      health='Green',
                                      status='Ready',
                                      version_label=version_label,
-                                     include_deleted=False)
+                                     include_deleted=False,
+                                     wait_time_secs=timeout)
 
     events = helper.ebs.describe_events(start_time=start_time,
                                         environment_name=env_name)
