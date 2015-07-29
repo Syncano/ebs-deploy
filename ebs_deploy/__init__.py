@@ -210,6 +210,7 @@ class EbsHelper(object):
     """
     Class for helping with ebs
     """
+    TIMEOUT_PER_INSTANCE = 120
 
     def __init__(self, aws, app_name=None):
         """
@@ -414,8 +415,12 @@ class EbsHelper(object):
                                                     version_label=version['VersionLabel'])
                 sleep(2)
 
-    def wait_for_environments(self, environment_names, health=None, status=None, version_label=None,
-                              include_deleted=True, wait_time_secs=900):
+    def wait_for_environments(self, environment_names,
+                              health=None,
+                              status=None,
+                              version_label=None,
+                              include_deleted=True,
+                              instance_count=0):
         """
         Waits for an environment to have the given version_label
         and to be in the green state
@@ -426,17 +431,23 @@ class EbsHelper(object):
             environment_names = [environment_names]
         environment_names = environment_names[:]
 
-        # print some stuff
-        s = "Waiting for environment(s) " + (", ".join(environment_names)) + " to"
-        if health is not None:
-            s += " have health " + health
-        else:
-            s += " have any health"
-        if version_label is not None:
-            s += " and have version " + version_label
-        if status is not None:
-            s += " and have status " + status
-        out(s)
+        wait_time_secs = self.TIMEOUT_PER_INSTANCE * instance_count
+
+        msg_tmpl = ('Waiting for environment(s) {env_names} '
+                    'to have {health} '
+                    'and have version {version} '
+                    'and have status {status} '
+                    '(timeout: {timeout}s, instance count: {instance_count}).')
+
+        msg_kwargs = {
+            'env_names': ', '.join(environment_names),
+            'health': 'health {}'.format(health) if health else 'any health',
+            'status': status or 'N/A',
+            'version': version_label or 'N/A',
+            'timeout': wait_time_secs,
+            'instance_count': instance_count
+        }
+        out(msg_tmpl.format(**msg_kwargs))
 
         started = time()
         while True:
