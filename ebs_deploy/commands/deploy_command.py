@@ -1,4 +1,5 @@
-from ebs_deploy import get, parse_env_config, parse_option_settings, upload_application_archive
+from ebs_deploy import (get, parse_env_config, parse_option_settings,
+                        upload_application_archive)
 
 
 def add_arguments(parser):

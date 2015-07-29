@@ -1,5 +1,6 @@
 
-from ebs_deploy import out, get, parse_env_config, parse_option_settings
+from ebs_deploy import get, out, parse_env_config, parse_option_settings
+
 
 def add_arguments(parser):
     """
@@ -16,4 +17,3 @@ def execute(helper, config, args):
     settings = parse_option_settings(option_settings)
     for setting in settings:
         out(str(setting))
-
