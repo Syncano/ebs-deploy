@@ -4,8 +4,6 @@ from datetime import datetime
 from ebs_deploy import (get, parse_env_config, parse_option_settings,
                         upload_application_archive)
 
-TIMEOUT_PER_INSTANCE = 120
-
 
 def add_arguments(parser):
     """
@@ -58,8 +56,7 @@ def execute(helper, config, args):
     # deploy it
     helper.deploy_version(env_name, version_label)
 
-    timeout = TIMEOUT_PER_INSTANCE
-    timeout *= len(get_env_instances(helper.ec2, env_name))
+    instance_count = len(get_env_instances(helper.ec2, env_name))
 
     # wait
     if not args.dont_wait:
@@ -67,7 +64,7 @@ def execute(helper, config, args):
                                      status='Ready',
                                      version_label=version_label,
                                      include_deleted=False,
-                                     wait_time_secs=timeout)
+                                     instance_count=instance_count)
 
     # update it
     env = parse_env_config(config, env_name)
@@ -86,7 +83,7 @@ def execute(helper, config, args):
                                      status='Ready',
                                      version_label=version_label,
                                      include_deleted=False,
-                                     wait_time_secs=timeout)
+                                     instance_count=instance_count)
 
     events = helper.ebs.describe_events(start_time=start_time,
                                         environment_name=env_name)
