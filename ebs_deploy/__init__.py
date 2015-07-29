@@ -1,7 +1,6 @@
+from boto import ec2, beanstalk
 from boto.exception import S3ResponseError
-from boto import ec2
 from boto.s3.connection import S3Connection
-from boto.beanstalk import connect_to_region
 from boto.s3.key import Key
 
 from datetime import datetime
@@ -217,9 +216,9 @@ class EbsHelper(object):
         Creates the EbsHelper
         """
         self.aws = aws
-        self.ebs = connect_to_region(aws.region,
-                                     aws_access_key_id=aws.access_key,
-                                     aws_secret_access_key=aws.secret_key)
+        self.ebs = beanstalk.connect_to_region(aws.region,
+                                               aws_access_key_id=aws.access_key,
+                                               aws_secret_access_key=aws.secret_key)
         self.ec2 = ec2.connect_to_region(aws.region,
                                          aws_access_key_id=aws.access_key,
                                          aws_secret_access_key=aws.secret_key)
