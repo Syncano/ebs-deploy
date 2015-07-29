@@ -1,3 +1,6 @@
+import json
+from datetime import datetime
+
 from ebs_deploy import (get, parse_env_config, parse_option_settings,
                         upload_application_archive)
 
@@ -6,13 +9,25 @@ def add_arguments(parser):
     """
     adds arguments for the deploy command
     """
-    parser.add_argument('-e', '--environment', help='Environment name', required=True)
-    parser.add_argument('-w', '--dont-wait', help='Skip waiting for the init to finish', action='store_true')
-    parser.add_argument('-a', '--archive', help='Archive file', required=False)
-    parser.add_argument('-d', '--directory', help='Directory', required=False)
-    parser.add_argument('-l', '--version-label', help='Version label', required=False)
-    parser.add_argument('-f', '--log-events-to-file', help='Log events to file',
-                        required=False, action='store_true')
+    parser.add_argument('-e', '--environment',
+                        help='Environment name',
+                        required=True)
+    parser.add_argument('-w', '--dont-wait',
+                        help='Skip waiting for the init to finish',
+                        action='store_true')
+    parser.add_argument('-a', '--archive',
+                        help='Archive file',
+                        required=False)
+    parser.add_argument('-d', '--directory',
+                        help='Directory',
+                        required=False)
+    parser.add_argument('-l', '--version-label',
+                        help='Version label',
+                        required=False)
+    parser.add_argument('-f', '--log-events-to-file',
+                        help='Log events to file',
+                        required=False,
+                        action='store_true')
 
 
 def execute(helper, config, args):
@@ -28,8 +43,7 @@ def execute(helper, config, args):
         helper, env_config, archive=args.archive,
         directory=args.directory, version_label=version_label)
 
-    import datetime
-    start_time = datetime.datetime.utcnow().isoformat()
+    start_time = datetime.utcnow().isoformat()
     # deploy it
     helper.deploy_version(env_name, version_label)
 
@@ -51,12 +65,14 @@ def execute(helper, config, args):
 
     # wait
     if not args.dont_wait:
-        helper.wait_for_environments(env_name, health='Green',
-                                     status='Ready', version_label=version_label,
+        helper.wait_for_environments(env_name,
+                                     health='Green',
+                                     status='Ready',
+                                     version_label=version_label,
                                      include_deleted=False)
 
-    events = helper.ebs.describe_events(start_time=start_time, environment_name=env_name)
-    import json
+    events = helper.ebs.describe_events(start_time=start_time,
+                                        environment_name=env_name)
     if args.log_events_to_file:
         with open('ebs_events.json', 'w+') as f:
             json.dump(events, f)
