@@ -33,8 +33,11 @@ def add_arguments(parser):
 
 
 def get_env_instances(ec2_conn, env_name):
-    return [r.instances[0] for r in ec2_conn.instances.get_all_reservations()
-            if r.instances[0].tags['Name'] == env_name]
+    filters = {
+        'tag:elasticbeanstalk:environment-name': env_name,
+        'instance-state-name': 'running'
+    }
+    return ec2_conn.get_only_instances(filters=filters)
 
 
 def execute(helper, config, args):
