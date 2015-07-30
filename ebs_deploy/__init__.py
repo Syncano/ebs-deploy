@@ -210,7 +210,12 @@ class EbsHelper(object):
     """
     Class for helping with ebs
     """
-    TIMEOUT_PER_INSTANCE = 120
+    INSTANCE_DEPLOY_TIMEOUTS = {
+        'eu': 120,
+        'us': 180,
+        'ap': 180,
+        'sa': 180
+    }
 
     def __init__(self, aws, app_name=None):
         """
@@ -431,7 +436,8 @@ class EbsHelper(object):
             environment_names = [environment_names]
         environment_names = environment_names[:]
 
-        wait_time_secs = self.TIMEOUT_PER_INSTANCE * instance_count
+        region = self.aws.region.split('-')[0]
+        wait_time_secs = self.INSTANCE_DEPLOY_TIMEOUTS[region] * instance_count
 
         msg_tmpl = ('Waiting for environment(s) {env_names} '
                     'to have {health} '
