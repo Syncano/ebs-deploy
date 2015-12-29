@@ -211,10 +211,10 @@ class EbsHelper(object):
     Class for helping with ebs
     """
     INSTANCE_DEPLOY_TIMEOUTS = {
-        'eu': 400,
-        'us': 600,
-        'ap': 600,
-        'sa': 600
+        'eu': 1000,
+        'us': 1000,
+        'ap': 1000,
+        'sa': 1000
     }
 
     def __init__(self, aws, app_name=None):
